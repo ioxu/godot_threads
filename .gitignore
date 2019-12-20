@@ -1,0 +1,24 @@
+export/
+# models/
+setup/
+textures/
+fonts/
+
+# images
+*.jpg
+*.jpeg
+*.psd
+*.png
+
+# geometry
+*.obj
+*.mtl
+*.mtl
+*.dae
+
+# gotdot
+# *.import # it is recommended to track .import files
+
+# blobs of imported data
+.import/
+
