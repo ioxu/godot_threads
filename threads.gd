@@ -7,6 +7,33 @@ var threadn = 0
 func _ready():
 	reset_log()
 
+func _on_do_work_button_button_up():
+	print("do_work")
+	for i in range(10): 
+
+		print("start %s"%[i])
+		var t = thread.instance()
+		print(t)
+
+		t.connect("send_log", self, "_on_thread_log")
+		t.begin({"n":threadn, "name":"thread_%s"%[threadn]})
+		threadn += 1
+
+func _on_thread_log(data):
+	print(str(data))
+	log_output.text += str(data) + "\n"
+	self._on_log_output_cursor_changed()
+
+func _on_log_output_cursor_changed():
+	log_output.cursor_set_line( log_output.get_line_count() )
+
+func _on_clear_log_button_button_up():
+	reset_log()
+
+func reset_log():
+	log_output.text = "log started %s"%[get_pretty_time()]
+	log_output.text += "\n------------------------------------------------\n"
+
 func get_pretty_time():
 	# https://godotengine.org/qa/19077/how-to-get-the-date-as-per-rfc-1123-date-format-in-game
 	# u/jospic
@@ -21,31 +48,3 @@ func get_pretty_time():
 	var minute= time["minute"]             #   0-59
 	var second= time["second"]             #   0-59
 	return "%s, %02d %s %d %02d:%02d:%02d GMT" % [nameweekday[dayofweek], day, namemonth[month-1], year, hour, minute, second]
-
-func _on_do_work_button_button_up():
-	print("do_work")
-	for i in range(10): 
-
-		print("start %s"%[i])
-		var t = thread.instance()
-		print(t)
-
-		t.connect("send_log", self, "_on_thread_log")
-		t.begin({"n":threadn, "name":"thread_%s"%[threadn]})
-		threadn += 1
-
-func _on_thread_log(data):
-	#print("_on_thread_log(), data %s"%[data])
-	print(str(data))
-	log_output.text += str(data) + "\n"
-	self._on_log_output_cursor_changed()
-
-func _on_log_output_cursor_changed():
-	log_output.cursor_set_line( log_output.get_line_count() )
-
-func _on_clear_log_button_button_up():
-	reset_log()
-
-func reset_log():
-	log_output.text = "log started %s"%[get_pretty_time()]
-	log_output.text += "\n------------------------------------------------\n"
