@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://threads.gd" type="Script" id=1]
+[ext_resource path="res://max_processors_spinbox.gd" type="Script" id=2]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.12549, 0.12549, 0.12549, 1 )
@@ -11,6 +12,29 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="DynamicFontData" id=3]
+font_path = "res://NotoSansMono-Medium.ttf"
+
+[sub_resource type="DynamicFont" id=4]
+size = 11
+extra_spacing_top = -6
+font_data = SubResource( 3 )
+
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://NotoSansMono-Medium.ttf"
+
+[sub_resource type="DynamicFont" id=6]
+size = 11
+extra_spacing_top = -6
+font_data = SubResource( 5 )
+
+[sub_resource type="DynamicFontData" id=7]
+font_path = "res://NotoSansMono-Medium.ttf"
+
+[sub_resource type="DynamicFont" id=8]
+size = 45
+font_data = SubResource( 7 )
 
 [node name="threads" type="Node2D"]
 script = ExtResource( 1 )
@@ -57,9 +81,80 @@ margin_top = 94.0
 margin_right = 531.0
 margin_bottom = 593.0
 custom_styles/normal = SubResource( 2 )
+custom_fonts/font = SubResource( 4 )
 text = "thing
 thing2"
 readonly = true
+
+[node name="log_output_rich" type="RichTextLabel" parent="Control"]
+margin_left = 541.0
+margin_top = 97.0
+margin_right = 1014.0
+margin_bottom = 592.0
+focus_mode = 2
+custom_fonts/mono_font = SubResource( 6 )
+custom_colors/selection_color = Color( 0.368627, 0.368627, 0.368627, 1 )
+custom_colors/font_color_selected = Color( 0, 0, 0, 1 )
+bbcode_enabled = true
+bbcode_text = "thing
+[code]thing2[/code]
+"
+text = "thing
+thing2
+"
+scroll_following = true
+selection_enabled = true
+
+[node name="threads_container" type="Node" parent="Control"]
+
+[node name="processors_label" type="Label" parent="Control/threads_container"]
+margin_left = 12.0
+margin_top = 10.0
+margin_right = 82.0
+margin_bottom = 24.0
+text = "processors"
+
+[node name="max_processors_label" type="Label" parent="Control/threads_container"]
+margin_left = 12.0
+margin_top = 27.0
+margin_right = 43.0
+margin_bottom = 41.0
+text = "max:"
+
+[node name="max_processors_spinbox" type="SpinBox" parent="Control/threads_container"]
+margin_left = 11.0
+margin_top = 40.0
+margin_right = 85.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 15, 0 )
+max_value = 12.0
+value = 11.0
+script = ExtResource( 2 )
+
+[node name="n_processors_label" type="Label" parent="Control/threads_container"]
+margin_left = 87.0
+margin_top = -6.437
+margin_right = 126.0
+margin_bottom = 56.563
+custom_fonts/font = SubResource( 8 )
+text = "5"
+
+[node name="active_threads_label2" type="Label" parent="Control/threads_container"]
+margin_left = 286.336
+margin_top = 10.0
+margin_right = 334.336
+margin_bottom = 24.0
+text = "threads"
+
+[node name="n_active_threads_label" type="Label" parent="Control/threads_container"]
+margin_left = 340.47
+margin_top = -6.43694
+margin_right = 379.47
+margin_bottom = 56.5631
+custom_fonts/font = SubResource( 8 )
+text = "5"
 [connection signal="button_up" from="Control/do_work_button" to="." method="_on_do_work_button_button_up"]
 [connection signal="button_up" from="Control/clear_log_button" to="." method="_on_clear_log_button_button_up"]
 [connection signal="cursor_changed" from="Control/log_output" to="." method="_on_log_output_cursor_changed"]
+[connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="." method="_on_max_processors_spinbox_value_changed"]
+[connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="Control/threads_container/max_processors_spinbox" method="_on_max_processors_spinbox_value_changed"]

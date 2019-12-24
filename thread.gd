@@ -71,8 +71,8 @@ func end():
 	# log
 	var logstr = ""
 	logstr += "end  %s %s : %s minutes\n"%[args["n"],thread, str_elapsed]
-	logstr += "  result: %s\n"%result
-	logstr += "  %s.queue_free()"%[thread]
+	logstr += "  ├─ result: %s\n"%result
+	logstr += "  └─ %s.queue_free()"%[thread]
 	emit_signal("send_log", logstr)
 	
 	# free
