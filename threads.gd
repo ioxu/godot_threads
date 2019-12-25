@@ -18,25 +18,46 @@ func _ready():
 	reset_log()
 
 func _on_do_work_button_button_up():
-	print("do_work")
+	_on_thread_log("do_work")
 	for i in range(10): 
 
-		print("start %s"%[i])
+		#_on_thread_log("start %s"%[i])
 		var t = thread.instance()
-		print(t)
+		#_on_thread_log(t)
 
 		t.connect("send_log", self, "_on_thread_log")
+		t.connect("begin", self, "_on_thread_begin")
+		t.connect("thread_begin", self, "_on_thread_thread_begin")
+		t.connect("end", self, "_on_thread_end")
+		
 		t.begin({"n":threadn, "name":"thread_%s"%[threadn]})
+		
 		threadn += 1
+
+	self._on_log_output_cursor_changed()
+
+
+# thread state signals
+func _on_thread_begin(thread):
+	_on_thread_log("init %s"%[thread])
+
+func _on_thread_thread_begin(thread):
+	_on_thread_log("begin %s"%[thread])
+
+func _on_thread_end(thread, elapsed, result):
+	_on_thread_log("end %s (%02d:%02d) %s"%[thread, elapsed / 60, elapsed % 60, result])
+
 
 func _on_thread_log(data):
 	print(str(data))
 	log_output.text += str(data) + "\n"
 
 	# this bbcode formatting is cruising for a bruising --
+#	var c = Color(0.972549, 0.831373, 0.411765)
 	var data_split = str(data).split(" ")
-	if data_split[0] == "start":
-		#var c = Color(1, 0.294118, 0.623529)
+	if data_split[0] == "init":
+		data =  "[color=#f8d469]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")
+	elif data_split[0] == "begin":
 		data =  "[color=#5aff48]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")
 	elif data_split[0] == "end":
 		data =  "[color=#ff4b9f]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")
