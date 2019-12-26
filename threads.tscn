@@ -126,6 +126,7 @@ bbcode_text = "thing
 text = "thing
 thing2
 "
+scroll_active = false
 scroll_following = true
 selection_enabled = true
 

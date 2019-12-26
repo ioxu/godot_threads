@@ -9,6 +9,7 @@ var thread = Thread.new()
 
 # warning-ignore:unused_signal
 signal send_log
+# warning-ignore:unused_signal
 signal begin
 # warning-ignore:unused_signal
 signal thread_begin
@@ -19,7 +20,7 @@ func set_data(userdata):
 		self.data[k] = userdata[k]
 
 func begin(userdata={}):
-	emit_signal("begin",self)
+	#emit_signal("begin",self)
 	self.set_data(userdata)
 	thread.start(self, "_thread_function", self.data )
 
@@ -28,17 +29,18 @@ func begin(userdata={}):
 func _thread_function(userdata):
 	time_start = OS.get_unix_time()
 
-	var depth = randf()*2 * 0.3
+	var depth = int(10000000 * randf()*2 * 0.3)
 	call_deferred("emit_signal", "thread_begin", self)
 
 	# do work
-	var x = 0#1.000001
+	var x = 0
 	var i = 0 
-	while i < 10000000 * depth:
+	while i < depth:
 		x += 0.000001
 		i += 1
 	call_deferred("end")
 
+	userdata["depth"] = depth
 	userdata["result"] = x
 	return userdata
 

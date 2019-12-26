@@ -64,7 +64,9 @@ func check_for_spare_slots():
 func _on_stop_work_button_button_up():
 	print("STOP WORK")
 	for t in thread_queued_list:
-		print(t, t.get_path())
+		# this works even better with the thread queue
+		# because the threads haven't been started yet
+		# and they clean up much faster
 		t.queue_free()
 	thread_queued_list.clear()
 	# find a way to pass a kill message to active threads ..
@@ -92,8 +94,8 @@ func update_thread_display():
 	n_active_threads_label.text = str(thread_active_list.size())
 
 func _on_thread_log(data):
-	print(str(data))
-	log_output.text += str(data) + "\n"
+	#print(str(data))
+	#log_output.text += str(data) + "\n"
 
 	# this bbcode formatting is cruising for a bruising --
 #	var c = Color(0.188235, 0.670588, 0.960784)
@@ -110,6 +112,8 @@ func _on_thread_log(data):
 		data += "[color=#30abf5]----------------------------------[/color]"
 	log_output_rich.set_bbcode( log_output_rich.get_bbcode() + "[code]" + str(data) + "[/code]\n" )
 	# ----------------------------------------------------
+#	if log_output_rich.get_line_count() > 10:
+#		var t = log_output_rich.remove_line(0)
 	
 	self._on_log_output_cursor_changed()
 
