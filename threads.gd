@@ -112,8 +112,11 @@ func _on_thread_log(data):
 		data += "[color=#30abf5]----------------------------------[/color]"
 	log_output_rich.set_bbcode( log_output_rich.get_bbcode() + "[code]" + str(data) + "[/code]\n" )
 	# ----------------------------------------------------
-#	if log_output_rich.get_line_count() > 10:
-#		var t = log_output_rich.remove_line(0)
+
+	# temp limit for line count in RichTextLabel
+	# RichTextLabel gets slower the longer the bbcode
+	while (log_output_rich.get_line_count() > 40):
+		log_output_rich.remove_line(0)
 	
 	self._on_log_output_cursor_changed()
 

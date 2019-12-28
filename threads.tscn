@@ -21,33 +21,33 @@ size = 11
 extra_spacing_top = -6
 font_data = SubResource( 3 )
 
-[sub_resource type="StyleBoxFlat" id=9]
+[sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.160784, 0.160784, 0.160784, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id=10]
+[sub_resource type="StyleBoxFlat" id=6]
 bg_color = Color( 0.160784, 0.160784, 0.160784, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
-
-[sub_resource type="DynamicFontData" id=5]
-font_path = "res://Hack-Regular.ttf"
-
-[sub_resource type="DynamicFont" id=6]
-size = 11
-font_data = SubResource( 5 )
 
 [sub_resource type="DynamicFontData" id=7]
-font_path = "res://NotoSansMono-Medium.ttf"
+font_path = "res://Hack-Regular.ttf"
 
 [sub_resource type="DynamicFont" id=8]
-size = 45
+size = 11
 font_data = SubResource( 7 )
+
+[sub_resource type="DynamicFontData" id=9]
+font_path = "res://NotoSansMono-Medium.ttf"
+
+[sub_resource type="DynamicFont" id=10]
+size = 45
+font_data = SubResource( 9 )
 
 [node name="threads" type="Node2D"]
 script = ExtResource( 1 )
@@ -113,9 +113,9 @@ margin_top = 97.0
 margin_right = 478.0
 margin_bottom = 592.0
 focus_mode = 2
-custom_styles/focus = SubResource( 9 )
-custom_styles/normal = SubResource( 10 )
-custom_fonts/mono_font = SubResource( 6 )
+custom_styles/focus = SubResource( 5 )
+custom_styles/normal = SubResource( 6 )
+custom_fonts/mono_font = SubResource( 8 )
 custom_colors/default_color = Color( 0.482353, 0.482353, 0.482353, 1 )
 custom_colors/selection_color = Color( 0.239216, 0.239216, 0.239216, 1 )
 custom_colors/font_color_selected = Color( 0, 0, 0, 1 )
@@ -161,7 +161,7 @@ margin_left = 87.0
 margin_top = -6.437
 margin_right = 126.0
 margin_bottom = 56.563
-custom_fonts/font = SubResource( 8 )
+custom_fonts/font = SubResource( 10 )
 text = "5"
 
 [node name="active_threads_label2" type="Label" parent="Control/threads_container"]
@@ -183,7 +183,7 @@ margin_left = 355.0
 margin_top = -6.437
 margin_right = 394.0
 margin_bottom = 56.563
-custom_fonts/font = SubResource( 8 )
+custom_fonts/font = SubResource( 10 )
 text = "5"
 
 [node name="active_threads_label" type="Label" parent="Control/threads_container"]
@@ -198,7 +198,7 @@ margin_left = 481.0
 margin_top = -6.437
 margin_right = 520.0
 margin_bottom = 56.563
-custom_fonts/font = SubResource( 8 )
+custom_fonts/font = SubResource( 10 )
 text = "5"
 [connection signal="button_up" from="Control/do_work_button" to="." method="_on_do_work_button_button_up"]
 [connection signal="button_up" from="Control/stop_work_button" to="." method="_on_stop_work_button_button_up"]
