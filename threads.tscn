@@ -204,5 +204,5 @@ text = "5"
 [connection signal="button_up" from="Control/stop_work_button" to="." method="_on_stop_work_button_button_up"]
 [connection signal="button_up" from="Control/clear_log_button" to="." method="_on_clear_log_button_button_up"]
 [connection signal="cursor_changed" from="Control/log_output" to="." method="_on_log_output_cursor_changed"]
-[connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="Control/threads_container/max_processors_spinbox" method="_on_max_processors_spinbox_value_changed"]
 [connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="." method="_on_max_processors_spinbox_value_changed"]
+[connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="Control/threads_container/max_processors_spinbox" method="_on_max_processors_spinbox_value_changed"]

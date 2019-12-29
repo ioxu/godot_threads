@@ -2,6 +2,9 @@ extends Node2D
 
 onready var log_output = get_node("Control/log_output")
 onready var log_output_rich = get_node("Control/log_output_rich")
+export var MAX_LOG_LINES = 80
+export var VISIBLE_LOG_LINES = 40
+
 onready var thread = preload("res://thread.tscn")
 
 var n_processors = OS.get_processor_count()
@@ -28,7 +31,7 @@ func _ready():
 
 # initiate thread jobs
 func _on_do_work_button_button_up():
-	for i in range(10): 
+	for i in range(100): 
 
 		var t = thread.instance()
 		thread_list.append(t)
@@ -66,7 +69,7 @@ func _on_stop_work_button_button_up():
 	for t in thread_queued_list:
 		# this works even better with the thread queue
 		# because the threads haven't been started yet
-		# and they clean up much faster
+		# and they clean up much sooner
 		t.queue_free()
 	thread_queued_list.clear()
 	# find a way to pass a kill message to active threads ..
@@ -83,7 +86,8 @@ func _on_thread_thread_begin(thread):
 	self.update_thread_display()
 
 func _on_thread_end(thread, elapsed, result):
-	_on_thread_log("end %s (%02d:%02d)\n  %s"%[thread, elapsed / 60, elapsed % 60, result])
+	_on_thread_log("end %s (%02d:%02d)"%[thread, elapsed / 60, elapsed % 60])
+	_on_thread_log( "    %s"%[result] )
 	thread_list.erase(thread)
 	thread_active_list.erase(thread)
 	self.check_for_spare_slots()
@@ -94,31 +98,41 @@ func update_thread_display():
 	n_active_threads_label.text = str(thread_active_list.size())
 
 func _on_thread_log(data):
-	#print(str(data))
-	#log_output.text += str(data) + "\n"
-
 	# this bbcode formatting is cruising for a bruising --
-#	var c = Color(0.188235, 0.670588, 0.960784)
+#	var c = Color(0.321569, 0.721569, 0.960784)
 	var data_split = str(data).split(" ")
 	if data_split[0] == "init":
-		data =  "[color=#f8d469]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")
+		log_output_rich.append_bbcode("[code][color=#f8d469]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+		log_output_rich.newline()
 	elif data_split[0] == "begin":
-		data =  "[color=#5aff48]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")
+		log_output_rich.append_bbcode("[code][color=#5aff48]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+		log_output_rich.newline()
 	elif data_split[0] == "end":
-		data =  "[color=#ff4b9f]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")
+		log_output_rich.append_bbcode("[code][color=#ff4b9f]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+		log_output_rich.newline()
 	elif data_split[0] == "complete":
-		data = "[color=#30abf5]----------------------------------[/color]\n"
-		data +=  "[color=#30abf5]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ") + "\n"
-		data += "[color=#30abf5]----------------------------------[/color]"
-	log_output_rich.set_bbcode( log_output_rich.get_bbcode() + "[code]" + str(data) + "[/code]\n" )
+		log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
+		log_output_rich.newline()
+		log_output_rich.append_bbcode("[code][color=#52b8f5]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+		log_output_rich.newline()
+		log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
+		log_output_rich.newline()
+	elif data_split[0] == "log":
+		log_output_rich.append_bbcode("[code][color=#feff7d]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+		log_output_rich.newline()
+	else:
+		log_output_rich.append_bbcode("[code]"+str(data)+"[/code]")
+		log_output_rich.newline()
 	# ----------------------------------------------------
 
-	# temp limit for line count in RichTextLabel
-	# RichTextLabel gets slower the longer the bbcode
-	while (log_output_rich.get_line_count() > 40):
-		log_output_rich.remove_line(0)
-	
+	self.request_log_cull()
 	self._on_log_output_cursor_changed()
+
+func request_log_cull():
+	if log_output_rich.get_line_count() > MAX_LOG_LINES:
+		for i in range( MAX_LOG_LINES - VISIBLE_LOG_LINES ):
+			log_output_rich.remove_line(0)
+		self._on_thread_log("log  cleared log %s lines"%[ MAX_LOG_LINES - VISIBLE_LOG_LINES])
 
 func _on_log_output_cursor_changed():
 	log_output.cursor_set_line( log_output.get_line_count() )
@@ -130,10 +144,10 @@ func reset_log():
 	log_output.text = ""
 	log_output_rich.bbcode_text = ""
 	
-	var s = "log started %s\n"%[get_pretty_time()]
-	s += "processors %s\n"%[OS.get_processor_count()]
-	s += "------------------------------------------------\n"
-	_on_thread_log( s )
+	_on_thread_log( "log started %s"%[get_pretty_time()] )
+	_on_thread_log( "processors %s"%[OS.get_processor_count()] )
+	_on_thread_log("------------------------------------------------")
+	
 
 func _on_max_processors_spinbox_value_changed(value):
 	_on_thread_log("max processors changed to %s"%[value])
@@ -161,6 +175,8 @@ func get_pretty_time():
 	var minute= time["minute"]             #   0-59
 	var second= time["second"]             #   0-59
 	return "%s, %02d %s %d %02d:%02d:%02d GMT" % [nameweekday[dayofweek], day, namemonth[month-1], year, hour, minute, second]
+
+
 
 
 
