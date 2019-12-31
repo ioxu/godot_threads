@@ -32,10 +32,10 @@ func _ready():
 	reset_log()
 
 
-func _process(delta):
-	fps_label.text = "%s fps"%[str(Engine.get_frames_per_second())]
-	#if delta !=0:
-	#	fps_label.text = "%0.1f fps"%[1.0/delta]
+#func _process(delta):
+#	fps_label.text = "%s fps"%[str(Engine.get_frames_per_second())]
+#	#if delta !=0:
+#	#	fps_label.text = "%0.1f fps"%[1.0/delta]
 
 
 # initiate thread jobs
@@ -46,10 +46,10 @@ func _on_do_work_button_button_up():
 		thread_list.append(t)
 		thread_queued_list.append(t)
 
-		t.connect("send_log", self, "_on_log")
-		t.connect("begin", self, "_on_thread_begin")
-		t.connect("thread_begin", self, "_on_thread_thread_begin")
-		t.connect("end", self, "_on_thread_end")
+		t.connect("send_log", self, "_on_log", [], CONNECT_DEFERRED)
+		t.connect("begin", self, "_on_thread_begin", [], CONNECT_DEFERRED)
+		t.connect("thread_begin", self, "_on_thread_thread_begin", [], CONNECT_DEFERRED)
+		t.connect("end", self, "_on_thread_end", [], CONNECT_DEFERRED)
 
 		t.set_data({"work_scale":work_load_scale_spinbox.get_value(),
 				"result": null,
