@@ -1,4 +1,4 @@
-extends Node2D
+extends Node
 # https://godotengine.org/qa/33120/how-do-thread-and-wait_to_finish-work
 
 var time_start = 0
@@ -22,14 +22,14 @@ func set_data(userdata):
 func begin(userdata={}):
 	#emit_signal("begin",self)
 	self.set_data(userdata)
-	thread.start(self, "_thread_function", self.data )
+	thread.start(self, "_thread_function", self.data, thread.PRIORITY_LOW )
 
 # do the work
 # The argument is the userdata passed from begin().
 func _thread_function(userdata):
 	time_start = OS.get_unix_time()
 
-	var depth = int(10000000 * randf()*2 * 0.3)
+	var depth = int(10000000 * randf()*2 * userdata["work_scale"])
 	call_deferred("emit_signal", "thread_begin", self)
 
 	# do work
@@ -45,9 +45,8 @@ func _thread_function(userdata):
 	return userdata
 
 func end():
-	var result = thread.wait_to_finish() #result =x from _thread_function(userdata)
+	var result = thread.wait_to_finish() #result = userdata from _thread_function(userdata)
 	var elapsed = OS.get_unix_time() - time_start
 	emit_signal("end", self, elapsed, result)
-	self.queue_free()
 
 

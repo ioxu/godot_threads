@@ -2,7 +2,7 @@ extends SpinBox
 
 
 func _on_max_processors_spinbox_value_changed(value):
-	print(self, ".changed")
+	print(self, ".changed to %s"%[value])
 	self.release_focus()
 	
 func _input(event):

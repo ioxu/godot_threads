@@ -2,5 +2,5 @@
 
 [ext_resource path="res://thread.gd" type="Script" id=1]
 
-[node name="thread" type="Node2D"]
+[node name="thread" type="Node"]
 script = ExtResource( 1 )

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://threads.gd" type="Script" id=1]
 [ext_resource path="res://max_processors_spinbox.gd" type="Script" id=2]
@@ -7,47 +7,32 @@
 bg_color = Color( 0.12549, 0.12549, 0.12549, 1 )
 
 [sub_resource type="StyleBoxFlat" id=2]
-bg_color = Color( 0, 0, 0, 0.172549 )
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="DynamicFontData" id=3]
-font_path = "res://NotoSansMono-Medium.ttf"
-
-[sub_resource type="DynamicFont" id=4]
-size = 11
-extra_spacing_top = -6
-font_data = SubResource( 3 )
-
-[sub_resource type="StyleBoxFlat" id=5]
 bg_color = Color( 0.160784, 0.160784, 0.160784, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id=6]
+[sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.160784, 0.160784, 0.160784, 1 )
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="DynamicFontData" id=7]
+[sub_resource type="DynamicFontData" id=4]
 font_path = "res://Hack-Regular.ttf"
 
-[sub_resource type="DynamicFont" id=8]
+[sub_resource type="DynamicFont" id=5]
 size = 11
-font_data = SubResource( 7 )
+font_data = SubResource( 4 )
 
-[sub_resource type="DynamicFontData" id=9]
+[sub_resource type="DynamicFontData" id=6]
 font_path = "res://NotoSansMono-Medium.ttf"
 
-[sub_resource type="DynamicFont" id=10]
+[sub_resource type="DynamicFont" id=7]
 size = 45
-font_data = SubResource( 9 )
+font_data = SubResource( 6 )
 
 [node name="threads" type="Node2D"]
 script = ExtResource( 1 )
@@ -67,7 +52,7 @@ size_flags_vertical = 3
 custom_styles/panel = SubResource( 1 )
 
 [node name="fps" type="Label" parent="Control"]
-margin_left = 978.0
+margin_left = 917.0
 margin_top = 7.0
 margin_right = 1018.0
 margin_bottom = 21.0
@@ -82,9 +67,9 @@ margin_bottom = 87.0
 text = "do work"
 
 [node name="stop_work_button" type="Button" parent="Control"]
-margin_left = 80.0
+margin_left = 330.0
 margin_top = 67.0
-margin_right = 154.0
+margin_right = 404.0
 margin_bottom = 87.0
 text = "stop work"
 
@@ -95,27 +80,15 @@ margin_right = 477.0
 margin_bottom = 87.0
 text = "clear log"
 
-[node name="log_output" type="TextEdit" parent="Control"]
-visible = false
-margin_left = 7.0
-margin_top = 94.0
-margin_right = 531.0
-margin_bottom = 593.0
-custom_styles/normal = SubResource( 2 )
-custom_fonts/font = SubResource( 4 )
-text = "thing
-thing2"
-readonly = true
-
 [node name="log_output_rich" type="RichTextLabel" parent="Control"]
 margin_left = 5.0
 margin_top = 97.0
 margin_right = 478.0
 margin_bottom = 592.0
 focus_mode = 2
-custom_styles/focus = SubResource( 5 )
-custom_styles/normal = SubResource( 6 )
-custom_fonts/mono_font = SubResource( 8 )
+custom_styles/focus = SubResource( 2 )
+custom_styles/normal = SubResource( 3 )
+custom_fonts/mono_font = SubResource( 5 )
 custom_colors/default_color = Color( 0.482353, 0.482353, 0.482353, 1 )
 custom_colors/selection_color = Color( 0.239216, 0.239216, 0.239216, 1 )
 custom_colors/font_color_selected = Color( 0, 0, 0, 1 )
@@ -132,6 +105,21 @@ selection_enabled = true
 
 [node name="threads_container" type="Node" parent="Control"]
 
+[node name="work_load_scale_label" type="Label" parent="Control/threads_container"]
+margin_left = 12.0
+margin_top = 27.0
+margin_right = 43.0
+margin_bottom = 41.0
+text = "max:"
+
+[node name="work_load_scale_spinbox" type="SpinBox" parent="Control/threads_container"]
+margin_left = 160.08
+margin_top = 67.0
+margin_right = 234.08
+margin_bottom = 91.0
+step = 0.001
+value = 0.25
+
 [node name="processors_label" type="Label" parent="Control/threads_container"]
 margin_left = 12.0
 margin_top = 10.0
@@ -140,11 +128,11 @@ margin_bottom = 24.0
 text = "processors"
 
 [node name="max_processors_label" type="Label" parent="Control/threads_container"]
-margin_left = 12.0
-margin_top = 27.0
-margin_right = 43.0
-margin_bottom = 41.0
-text = "max:"
+margin_left = 92.0802
+margin_top = 72.0
+margin_right = 160.08
+margin_bottom = 86.0
+text = "load scale:"
 
 [node name="max_processors_spinbox" type="SpinBox" parent="Control/threads_container"]
 margin_left = 11.0
@@ -154,55 +142,55 @@ margin_bottom = 64.0
 rect_min_size = Vector2( 15, 0 )
 max_value = 12.0
 value = 11.0
+allow_greater = true
 script = ExtResource( 2 )
 
 [node name="n_processors_label" type="Label" parent="Control/threads_container"]
 margin_left = 87.0
-margin_top = -6.437
+margin_top = -6.0
 margin_right = 126.0
-margin_bottom = 56.563
-custom_fonts/font = SubResource( 10 )
+margin_bottom = 57.0
+custom_fonts/font = SubResource( 7 )
 text = "5"
 
 [node name="active_threads_label2" type="Label" parent="Control/threads_container"]
-margin_left = 227.0
+margin_left = 147.0
 margin_top = 10.0
-margin_right = 275.0
+margin_right = 199.0
 margin_bottom = 24.0
-text = "threads"
+text = "threads:"
 
 [node name="queued_threads_label" type="Label" parent="Control/threads_container"]
-margin_left = 305.0
+margin_left = 204.0
 margin_top = 10.0
-margin_right = 353.0
+margin_right = 252.0
 margin_bottom = 24.0
 text = "queued"
 
 [node name="n_queued_threads_label" type="Label" parent="Control/threads_container"]
-margin_left = 355.0
-margin_top = -6.437
-margin_right = 394.0
-margin_bottom = 56.563
-custom_fonts/font = SubResource( 10 )
+margin_left = 254.0
+margin_top = -6.0
+margin_right = 293.0
+margin_bottom = 57.0
+custom_fonts/font = SubResource( 7 )
 text = "5"
 
 [node name="active_threads_label" type="Label" parent="Control/threads_container"]
-margin_left = 443.0
+margin_left = 388.0
 margin_top = 10.0
-margin_right = 491.0
+margin_right = 436.0
 margin_bottom = 24.0
 text = "active"
 
 [node name="n_active_threads_label" type="Label" parent="Control/threads_container"]
-margin_left = 481.0
-margin_top = -6.437
-margin_right = 520.0
-margin_bottom = 56.563
-custom_fonts/font = SubResource( 10 )
+margin_left = 427.0
+margin_top = -6.0
+margin_right = 466.0
+margin_bottom = 57.0
+custom_fonts/font = SubResource( 7 )
 text = "5"
 [connection signal="button_up" from="Control/do_work_button" to="." method="_on_do_work_button_button_up"]
 [connection signal="button_up" from="Control/stop_work_button" to="." method="_on_stop_work_button_button_up"]
 [connection signal="button_up" from="Control/clear_log_button" to="." method="_on_clear_log_button_button_up"]
-[connection signal="cursor_changed" from="Control/log_output" to="." method="_on_log_output_cursor_changed"]
 [connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="." method="_on_max_processors_spinbox_value_changed"]
 [connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="Control/threads_container/max_processors_spinbox" method="_on_max_processors_spinbox_value_changed"]
