@@ -1,7 +1,8 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://threads.gd" type="Script" id=1]
 [ext_resource path="res://max_processors_spinbox.gd" type="Script" id=2]
+[ext_resource path="res://thread_pixel_display.gd" type="Script" id=3]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.12549, 0.12549, 0.12549, 1 )
@@ -33,6 +34,10 @@ font_path = "res://NotoSansMono-Medium.ttf"
 [sub_resource type="DynamicFont" id=7]
 size = 45
 font_data = SubResource( 6 )
+
+[sub_resource type="ImageTexture" id=8]
+flags = 0
+flags = 0
 
 [node name="threads" type="Node2D"]
 script = ExtResource( 1 )
@@ -104,6 +109,7 @@ scroll_following = true
 selection_enabled = true
 
 [node name="threads_container" type="Node" parent="Control"]
+editor/display_folded = true
 
 [node name="work_load_scale_label" type="Label" parent="Control/threads_container"]
 margin_left = 12.0
@@ -165,6 +171,7 @@ margin_left = 204.0
 margin_top = 10.0
 margin_right = 252.0
 margin_bottom = 24.0
+custom_colors/font_color = Color( 0.415686, 0.415686, 0.415686, 1 )
 text = "queued"
 
 [node name="n_queued_threads_label" type="Label" parent="Control/threads_container"]
@@ -173,6 +180,7 @@ margin_top = -6.0
 margin_right = 293.0
 margin_bottom = 57.0
 custom_fonts/font = SubResource( 7 )
+custom_colors/font_color = Color( 0.415686, 0.415686, 0.415686, 1 )
 text = "5"
 
 [node name="active_threads_label" type="Label" parent="Control/threads_container"]
@@ -189,6 +197,33 @@ margin_right = 466.0
 margin_bottom = 57.0
 custom_fonts/font = SubResource( 7 )
 text = "5"
+
+[node name="completed_threads_label" type="Label" parent="Control/threads_container"]
+margin_left = 531.0
+margin_top = 10.0
+margin_right = 600.0
+margin_bottom = 24.0
+custom_colors/font_color = Color( 1, 0.831373, 0.431373, 1 )
+text = "completed"
+
+[node name="n_completed_threads_label" type="Label" parent="Control/threads_container"]
+margin_left = 601.905
+margin_top = -6.0
+margin_right = 640.905
+margin_bottom = 57.0
+custom_fonts/font = SubResource( 7 )
+custom_colors/font_color = Color( 1, 0.831373, 0.431373, 1 )
+custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
+text = "5"
+
+[node name="thread_pixel_display" type="TextureRect" parent="Control"]
+margin_left = 484.0
+margin_top = 98.0
+margin_right = 534.0
+margin_bottom = 148.0
+rect_scale = Vector2( 10, 10 )
+texture = SubResource( 8 )
+script = ExtResource( 3 )
 [connection signal="button_up" from="Control/do_work_button" to="." method="_on_do_work_button_button_up"]
 [connection signal="button_up" from="Control/stop_work_button" to="." method="_on_stop_work_button_button_up"]
 [connection signal="button_up" from="Control/clear_log_button" to="." method="_on_clear_log_button_button_up"]

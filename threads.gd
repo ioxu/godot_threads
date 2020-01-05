@@ -4,7 +4,7 @@ onready var log_output_rich = get_node("Control/log_output_rich")
 export var MAX_LOG_LINES = 80
 export var VISIBLE_LOG_LINES = 40
 
-onready var thread = preload("res://thread.tscn")
+onready var thread_node = preload("res://thread.tscn")
 
 var n_processors = OS.get_processor_count()
 
@@ -12,8 +12,11 @@ onready var n_processors_label = get_node("Control/threads_container/n_processor
 onready var n_max_processors_spinbox = get_node("Control/threads_container/max_processors_spinbox")
 onready var n_queued_threads_label = get_node("Control/threads_container/n_queued_threads_label")
 onready var n_active_threads_label = get_node("Control/threads_container/n_active_threads_label")
+onready var n_completed_threads_label = get_node("Control/threads_container/n_completed_threads_label")
+var n_completed_threads = 0
 onready var fps_label = get_node("Control/fps")
 onready var work_load_scale_spinbox= get_node("Control/threads_container/work_load_scale_spinbox")
+onready var thread_pixel_display = get_node("Control/thread_pixel_display")
 
 var threadn = 0
 
@@ -29,6 +32,7 @@ func _ready():
 	
 	n_queued_threads_label.text = "0"
 	n_active_threads_label.text = "0"
+	n_completed_threads_label.text = "0"
 	reset_log()
 
 
@@ -42,8 +46,8 @@ func _ready():
 func _on_do_work_button_button_up():
 	for i in range(100): 
 
-		var t = thread.instance()
-		thread_list.append(t)
+		var t = thread_node.instance()
+		#thread_list.append(t)
 		thread_queued_list.append(t)
 
 		t.connect("send_log", self, "_on_log", [], CONNECT_DEFERRED)
@@ -58,18 +62,19 @@ func _on_do_work_button_button_up():
 
 		threadn += 1
 
-	self.check_for_spare_slots()
-	self.update_thread_display()
+	self._check_for_spare_slots()
+	self._update_thread_display()
 
 
 # move threads into spare <n_procs-max_procs> slots
 # and call begin
-func check_for_spare_slots():
+func _check_for_spare_slots():
 	# find how many to move to spare slots
 	var move = min( thread_queued_list.size(), n_max_processors_spinbox.value - thread_active_list.size() )
 	if move != 0:
 		for i in range(move):
 			var t = thread_queued_list.pop_front()
+			thread_list.append(t)
 			t.begin()
 			thread_active_list.append(t)
 	elif thread_active_list.size() == 0:
@@ -86,34 +91,39 @@ func _on_stop_work_button_button_up():
 		t.queue_free()
 	thread_queued_list.clear()
 	# find a way to pass a kill message to active threads ..
-	self.update_thread_display()
+	self._update_thread_display()
 
 
 # thread state signals
 func _on_thread_begin(thread):
-#	_on_log("init %s"%[thread])
-#	self.update_thread_display()
-	pass
+	_on_log("init %s"%[thread])
+	self._update_thread_display()
+	thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(0.2, 0.4, 0.2) )
 
 
 func _on_thread_thread_begin(thread):
 	_on_log("begin %s"%[thread])
-	self.update_thread_display()
+	thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(0.2, 0.9, 0.2) )
+	self._update_thread_display()
 
 
 func _on_thread_end(thread, elapsed, result):
 	_on_log("end %s (%02d:%02d)"%[thread, elapsed / 60, elapsed % 60])
 	_on_log( "    %s"%[result] )
-	thread_list.erase(thread)
+	#thread_list.erase(thread)
+	#print("end thread n: %s"%[thread_list.find(thread)])
+	thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(result["result"]/5, 0.2, 0.2) )
+	
 	thread_active_list.erase(thread)
-	self.check_for_spare_slots()
-	self.update_thread_display()
+	n_completed_threads += 1
+	self._check_for_spare_slots()
+	self._update_thread_display()
 
 
-func update_thread_display():
-	n_queued_threads_label.text = str(thread_queued_list.size())
-	n_active_threads_label.text = str(thread_active_list.size())
-
+func _update_thread_display():
+	n_queued_threads_label.text = str(comma_sep(thread_queued_list.size()))
+	n_active_threads_label.text = str(comma_sep(thread_active_list.size()))
+	n_completed_threads_label.text = str(comma_sep(n_completed_threads))
 
 func _on_log(data):
 	# this bbcode formatting is cruising for a bruising --
@@ -143,10 +153,10 @@ func _on_log(data):
 		log_output_rich.newline()
 	# ----------------------------------------------------
 
-	self.request_log_cull()
+	self._request_log_cull()
 
 
-func request_log_cull():
+func _request_log_cull():
 	if log_output_rich.get_line_count() > MAX_LOG_LINES:
 		for i in range( MAX_LOG_LINES - VISIBLE_LOG_LINES ):
 			log_output_rich.remove_line(0)
@@ -194,7 +204,18 @@ func get_pretty_time():
 	var second= time["second"]             #   0-59
 	return "%s, %02d %s %d %02d:%02d:%02d GMT" % [nameweekday[dayofweek], day, namemonth[month-1], year, hour, minute, second]
 
+func comma_sep(number):
+	# https://godotengine.org/qa/18559/how-to-add-commas-to-an-integer-or-float-in-gdscript
+	var string = str(number)
+	var mod = string.length() % 3
+	var res = ""
 
+	for i in range(0, string.length()):
+		if i != 0 && i % 3 == mod:
+			res += ","
+		res += string[i]
+
+	return res
 
 
 

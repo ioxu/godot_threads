@@ -7,6 +7,8 @@ var data = {}
 
 var thread = Thread.new()
 
+#var psa = PoolStringArray()
+
 # warning-ignore:unused_signal
 signal send_log
 # warning-ignore:unused_signal
@@ -20,9 +22,10 @@ func set_data(userdata):
 		self.data[k] = userdata[k]
 
 func begin(userdata={}):
-	#emit_signal("begin",self)
+	emit_signal("begin",self)
 	self.set_data(userdata)
 	thread.start(self, "_thread_function", self.data, thread.PRIORITY_LOW )
+
 
 # do the work
 # The argument is the userdata passed from begin().
@@ -35,9 +38,19 @@ func _thread_function(userdata):
 	# do work
 	var x = 0
 	var i = 0 
+
+#	# simulate RAM load
+#	var d = pow(2,30)/8/2 # 512Mb?
+#	var sstart = OS.get_ticks_msec()
+#	psa.resize(d)
+#	print("resize time msec: %s"%[OS.get_ticks_msec() - sstart])
+	
+	# simultae CPU load
 	while i < depth:
 		x += 0.000001
 		i += 1
+
+	# finish
 	call_deferred("end")
 
 	userdata["depth"] = depth
@@ -45,6 +58,7 @@ func _thread_function(userdata):
 	return userdata
 
 func end():
+#	psa = null
 	var result = thread.wait_to_finish() #result = userdata from _thread_function(userdata)
 	var elapsed = OS.get_unix_time() - time_start
 	emit_signal("end", self, elapsed, result)
