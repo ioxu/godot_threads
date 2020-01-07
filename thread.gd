@@ -17,6 +17,8 @@ signal begin
 signal thread_begin
 signal end
 
+var killed = false
+
 func set_data(userdata):
 	for k in userdata.keys():
 		self.data[k] = userdata[k]
@@ -32,7 +34,6 @@ func begin(userdata={}):
 func _thread_function(userdata):
 	time_start = OS.get_unix_time()
 
-	var depth = int(10000000 * randf()*2 * userdata["work_scale"])
 	call_deferred("emit_signal", "thread_begin", self)
 
 	# do work
@@ -45,16 +46,25 @@ func _thread_function(userdata):
 #	psa.resize(d)
 #	print("resize time msec: %s"%[OS.get_ticks_msec() - sstart])
 	
-	# simultae CPU load
-	while i < depth:
-		x += 0.000001
-		i += 1
+	# simulate CPU load
+	while i < userdata["depth"] * userdata["work_scale"]:
+		if not self.killed:
+			x += 0.000001
+			i += 1
+		elif self.killed:
+			call_deferred("end")
 
-	# finish
+			userdata["depth"] = userdata["depth"] * userdata["work_scale"]
+			userdata["result"] = x
+			userdata["completed_status"] = "killed"
+			return userdata
+
+	# finish on completion
 	call_deferred("end")
 
-	userdata["depth"] = depth
+	userdata["depth"] = userdata["depth"] * userdata["work_scale"]
 	userdata["result"] = x
+	userdata["completed_status"] = "complete"
 	return userdata
 
 func end():
@@ -63,4 +73,6 @@ func end():
 	var elapsed = OS.get_unix_time() - time_start
 	emit_signal("end", self, elapsed, result)
 
+func kill_thread():
+	self.killed = true
 
