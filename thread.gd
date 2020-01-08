@@ -1,10 +1,8 @@
-extends Node
+class_name ThreadContainer
 # https://godotengine.org/qa/33120/how-do-thread-and-wait_to_finish-work
 
 var time_start = 0
-
 var data = {}
-
 var thread = Thread.new()
 
 #var psa = PoolStringArray()
@@ -47,17 +45,17 @@ func _thread_function(userdata):
 #	print("resize time msec: %s"%[OS.get_ticks_msec() - sstart])
 	
 	# simulate CPU load
-	while i < userdata["depth"] * userdata["work_scale"]:
-		if not self.killed:
+	while i < userdata["depth"] * userdata["work_scale"] and not self.killed:
 			x += 0.000001
 			i += 1
-		elif self.killed:
-			call_deferred("end")
 
-			userdata["depth"] = userdata["depth"] * userdata["work_scale"]
-			userdata["result"] = x
-			userdata["completed_status"] = "killed"
-			return userdata
+	if self.killed:
+		call_deferred("end")
+
+		userdata["depth"] = userdata["depth"] * userdata["work_scale"]
+		userdata["result"] = x
+		userdata["completed_status"] = "killed"
+		return userdata
 
 	# finish on completion
 	call_deferred("end")

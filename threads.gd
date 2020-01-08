@@ -1,10 +1,8 @@
 extends Node2D
 
 onready var log_output_rich = get_node("Control/log_output_rich")
-export var MAX_LOG_LINES = 80
-export var VISIBLE_LOG_LINES = 40
-
-onready var thread_node = preload("res://thread.tscn")
+export var MAX_LOG_LINES = 100
+export var VISIBLE_LOG_LINES = 50
 
 var n_processors = OS.get_processor_count()
 
@@ -18,8 +16,8 @@ onready var fps_label = get_node("Control/fps")
 onready var work_load_scale_spinbox= get_node("Control/threads_container").find_node("work_load_scale_spinbox")
 onready var thread_pixel_display = get_node("Control/thread_pixel_display")
 
+onready var thread_node = preload("res://thread.gd")
 var threadn = 0
-
 var thread_list = []
 var thread_queued_list = []
 var thread_active_list = []
@@ -55,7 +53,8 @@ func _process(delta):
 func _on_do_work_button_button_up():
 	for i in range(100): 
 
-		var t = thread_node.instance()
+		#var t = thread_node.instance()
+		var t = thread_node.new()
 		thread_queued_list.append(t)
 		
 		t.connect("send_log", self, "_on_log", [], CONNECT_DEFERRED)
@@ -99,16 +98,10 @@ func _check_for_spare_slots():
 # free the queued thread jobs
 func _on_stop_work_button_button_up():
 	print("STOP WORK")
-	for t in thread_queued_list:
-		# this works even better with the thread queue
-		# because the threads haven't been started yet
-		# and they clean up much sooner
-		t.queue_free()
-		
+	thread_queued_list.clear() # free queued threads
 	# all threads are commected to this one emit
 	# only active ones are left after the thread_queued_list freeing
 	emit_signal("kill_thread")
-	thread_queued_list.clear()
 	self._update_thread_display()
 
 
@@ -164,14 +157,14 @@ func _on_log(data):
 		log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
 		log_output_rich.newline()
 	elif data_split[0] == "log":
-		log_output_rich.append_bbcode("[code][color=#feff7d]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+		log_output_rich.append_bbcode("[code][color=#feff7d]"+data_split[0] + array_join(data_split, 1, " ") + "[/color][/code]")
 		log_output_rich.newline()
 	else:
 		log_output_rich.append_bbcode("[code]"+str(data)+"[/code]")
 		log_output_rich.newline()
 	# ----------------------------------------------------
 
-	#self._request_log_cull()
+	self._request_log_cull()
 
 
 func _request_log_cull():
