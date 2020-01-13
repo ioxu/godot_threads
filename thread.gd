@@ -3,7 +3,8 @@ class_name ThreadContainer
 
 var time_start = 0
 var data = {}
-var thread = Thread.new()
+#var thread = Thread.new()
+var thread = null
 
 #var psa = PoolStringArray()
 
@@ -23,6 +24,7 @@ func set_data(userdata):
 
 func begin(userdata={}):
 	emit_signal("begin",self)
+	thread = Thread.new()
 	self.set_data(userdata)
 	thread.start(self, "_thread_function", self.data, thread.PRIORITY_LOW )
 
@@ -69,7 +71,9 @@ func end():
 #	psa = null
 	var result = thread.wait_to_finish() #result = userdata from _thread_function(userdata)
 	var elapsed = OS.get_unix_time() - time_start
-	emit_signal("end", self, elapsed, result)
+	#emit_signal("end", self, elapsed, result)
+	thread = null
+	call_deferred("emit_signal", "end", self, elapsed, result)
 
 func kill_thread():
 	self.killed = true

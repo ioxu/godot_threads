@@ -24,7 +24,7 @@ var thread_active_list = []
 
 signal kill_thread
 
-# workload noise (smoothly chaning)
+# workload noise (smoothly changing)
 var noise = OpenSimplexNoise.new()
 
 
@@ -109,7 +109,7 @@ func _on_stop_work_button_button_up():
 func _on_thread_begin(thread):
 	_on_log("init %s"%[thread])
 	self._update_thread_display()
-	thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(0.2, 0.4, 0.2) )
+	#thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(0.2, 0.4, 0.2) )
 
 
 func _on_thread_thread_begin(thread):
