@@ -1,9 +1,10 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://threads.gd" type="Script" id=1]
 [ext_resource path="res://spinner.gd" type="Script" id=2]
 [ext_resource path="res://max_processors_spinbox.gd" type="Script" id=3]
 [ext_resource path="res://thread_pixel_display.gd" type="Script" id=4]
+[ext_resource path="res://delta_graph.gd" type="Script" id=5]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.12549, 0.12549, 0.12549, 1 )
@@ -241,10 +242,17 @@ text = "5"
 margin_left = 484.0
 margin_top = 98.0
 margin_right = 534.0
-margin_bottom = 148.0
+margin_bottom = 147.0
 rect_scale = Vector2( 10, 10 )
 texture = SubResource( 8 )
 script = ExtResource( 4 )
+
+[node name="delta_graph" type="TextureRect" parent="Control"]
+margin_left = 485.0
+margin_top = 50.0
+margin_right = 984.0
+margin_bottom = 92.0
+script = ExtResource( 5 )
 [connection signal="button_up" from="Control/do_work_button" to="." method="_on_do_work_button_button_up"]
 [connection signal="button_up" from="Control/stop_work_button" to="." method="_on_stop_work_button_button_up"]
 [connection signal="button_up" from="Control/clear_log_button" to="." method="_on_clear_log_button_button_up"]

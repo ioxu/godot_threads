@@ -107,10 +107,10 @@ func _on_stop_work_button_button_up():
 
 # thread state signals
 func _on_thread_begin(thread):
-	_on_log("init %s"%[thread])
-	self._update_thread_display()
+	#_on_log("init %s"%[thread])
+	#self._update_thread_display()
 	#thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(0.2, 0.4, 0.2) )
-
+	pass
 
 func _on_thread_thread_begin(thread):
 	_on_log("begin %s"%[thread])
