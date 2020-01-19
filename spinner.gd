@@ -14,7 +14,7 @@ func _draw():
 
 
 func draw_circle_arc_poly(center, radius, angle_from, angle_to, color):
-    var nb_points = 6
+    var nb_points = 3
     var points_arc = PoolVector2Array()
     points_arc.push_back(center)
     var colors = PoolColorArray([color])

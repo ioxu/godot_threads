@@ -51,20 +51,14 @@ func _thread_function(userdata):
 			x += 0.000001
 			i += 1
 
-	if self.killed:
-		call_deferred("end")
-
-		userdata["depth"] = userdata["depth"] * userdata["work_scale"]
-		userdata["result"] = x
-		userdata["completed_status"] = "killed"
-		return userdata
-
 	# finish on completion
 	call_deferred("end")
-
 	userdata["depth"] = userdata["depth"] * userdata["work_scale"]
 	userdata["result"] = x
-	userdata["completed_status"] = "complete"
+	if self.killed:
+		userdata["completed_status"] = "killed"
+	else:
+		userdata["completed_status"] = "complete"
 	return userdata
 
 func end():
@@ -76,5 +70,10 @@ func end():
 	call_deferred("emit_signal", "end", self, elapsed, result)
 
 func kill_thread():
+	# in a container of threads
+	# var t = thread_node.new()
+	# self.connect("kill_thread", t, "kill_thread", [], CONNECT_DEFERRED)
+	# emit_signal("kill_thread")
+	# to send kill signal
 	self.killed = true
 

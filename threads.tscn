@@ -70,6 +70,11 @@ align = 2
 position = Vector2( 996.001, 43 )
 script = ExtResource( 2 )
 
+[node name="tex_spinner" type="TextureProgress" parent="Control"]
+margin_right = 40.0
+margin_bottom = 40.0
+fill_mode = 4
+
 [node name="do_work_button" type="Button" parent="Control"]
 margin_left = 11.0
 margin_top = 67.0
