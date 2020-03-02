@@ -1,5 +1,7 @@
 extends Node2D
 
+onready var enable_logging_check = get_node("Control/enable_logging_check")
+var logging_enabled = true
 onready var log_output_rich = get_node("Control/log_output_rich")
 export var MAX_LOG_LINES = 100
 export var VISIBLE_LOG_LINES = 50
@@ -11,12 +13,12 @@ onready var n_max_processors_spinbox = get_node("Control/threads_container").fin
 onready var n_queued_threads_label = get_node("Control/threads_container").find_node("n_queued_threads_label")
 onready var n_active_threads_label = get_node("Control/threads_container").find_node("n_active_threads_label")
 onready var n_completed_threads_label = get_node("Control/threads_container").find_node("n_completed_threads_label")
-var n_completed_threads = 0
 onready var fps_label = get_node("Control/fps")
 onready var work_load_scale_spinbox= get_node("Control/threads_container").find_node("work_load_scale_spinbox")
 onready var thread_pixel_display = get_node("Control/thread_pixel_display")
 
 onready var thread_node = preload("res://thread.gd")
+var n_completed_threads = 0
 var threadn = 0
 var thread_list = []
 var thread_queued_list = []
@@ -48,21 +50,20 @@ func _ready():
 
 func _process(delta):
 	fps_label.text = "%s fps"%[str(Engine.get_frames_per_second())]
+	#print("_process delta: %s"%[delta])
 
 # initiate thread jobs
 func _on_do_work_button_button_up():
 	for i in range(100): 
-
-		#var t = thread_node.instance()
 		var t = thread_node.new()
 		thread_queued_list.append(t)
 		
-		t.connect("send_log", self, "_on_log", [], CONNECT_DEFERRED)
-		t.connect("begin", self, "_on_thread_begin", [], CONNECT_DEFERRED)
-		t.connect("thread_begin", self, "_on_thread_thread_begin", [], CONNECT_DEFERRED)
-		t.connect("end", self, "_on_thread_end", [], CONNECT_DEFERRED)
+		t.connect("send_log", self, "_on_log", [])#, CONNECT_DEFERRED)
+		#t.connect("begin", self, "_on_thread_begin", [])#, CONNECT_DEFERRED)
+		t.connect("thread_begin", self, "_on_thread_thread_begin", [])#, CONNECT_DEFERRED)
+		t.connect("end", self, "_on_thread_end", [])#, CONNECT_DEFERRED)
 
-		self.connect("kill_thread", t, "kill_thread", [], CONNECT_DEFERRED)
+		#self.connect("kill_thread", t, "kill_thread", [])#, CONNECT_DEFERRED)
 
 		var this_noise = bias((noise.get_noise_2d(threadn*4, 0 ) + 1) / 2, 0.15) * 3
 		var work_depth = int(10000000 * this_noise )
@@ -89,6 +90,7 @@ func _check_for_spare_slots():
 		for i in range(move):
 			var t = thread_queued_list.pop_front()
 			thread_list.append(t)
+			#yield(get_tree().create_timer(0.002), "timeout")
 			t.begin()
 			thread_active_list.append(t)
 	elif thread_active_list.size() == 0:
@@ -99,7 +101,7 @@ func _check_for_spare_slots():
 func _on_stop_work_button_button_up():
 	print("STOP WORK")
 	thread_queued_list.clear() # free queued threads
-	# all threads are commected to this one emit
+	# all started threads are commected to this one emit
 	# only active ones are left after the thread_queued_list freeing
 	emit_signal("kill_thread")
 	self._update_thread_display()
@@ -114,6 +116,10 @@ func _on_thread_begin(thread):
 
 func _on_thread_thread_begin(thread):
 	_on_log("begin %s"%[thread])
+
+	# can only send kill to started threads
+	self.connect("kill_thread", thread, "kill_thread", [])#, CONNECT_DEFERRED)
+	
 	thread_pixel_display.set_nth_pixel( thread_list.find(thread), Color(0.9, 0.9, 0.9) )
 	self._update_thread_display()
 
@@ -136,42 +142,46 @@ func _update_thread_display():
 	n_active_threads_label.text = str(comma_sep(thread_active_list.size()))
 	n_completed_threads_label.text = str(comma_sep(n_completed_threads))
 
+func _on_enable_logging_check_pressed():
+	logging_enabled = !logging_enabled
+
 func _on_log(data):
 	# this bbcode formatting is cruising for a bruising --
 #	var c = Color(0.321569, 0.721569, 0.960784)
-	var data_split = str(data).split(" ")
-	if data_split[0] == "init":
-		log_output_rich.append_bbcode("[code][color=#f8d469]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
-		log_output_rich.newline()
-	elif data_split[0] == "begin":
-		log_output_rich.append_bbcode("[code][color=#5aff48]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
-		log_output_rich.newline()
-	elif data_split[0] == "end":
-		log_output_rich.append_bbcode("[code][color=#ff4b9f]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
-		log_output_rich.newline()
-	elif data_split[0] == "complete":
-		log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
-		log_output_rich.newline()
-		log_output_rich.append_bbcode("[code][color=#52b8f5]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
-		log_output_rich.newline()
-		log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
-		log_output_rich.newline()
-	elif data_split[0] == "log":
-		log_output_rich.append_bbcode("[code][color=#feff7d]"+data_split[0] + array_join(data_split, 1, " ") + "[/color][/code]")
-		log_output_rich.newline()
-	else:
-		log_output_rich.append_bbcode("[code]"+str(data)+"[/code]")
-		log_output_rich.newline()
-	# ----------------------------------------------------
-
-	self._request_log_cull()
+	if logging_enabled:
+		var data_split = str(data).split(" ")
+		if data_split[0] == "init":
+			log_output_rich.append_bbcode("[code][color=#f8d469]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+			log_output_rich.newline()
+		elif data_split[0] == "begin":
+			log_output_rich.append_bbcode("[code][color=#5aff48]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+			log_output_rich.newline()
+		elif data_split[0] == "end":
+			log_output_rich.append_bbcode("[code][color=#ff4b9f]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+			log_output_rich.newline()
+		elif data_split[0] == "complete":
+			log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
+			log_output_rich.newline()
+			log_output_rich.append_bbcode("[code][color=#52b8f5]"+data_split[0]+"[/color] "+ array_join(data_split, 1, " ")+"[/code]")
+			log_output_rich.newline()
+			log_output_rich.append_bbcode("[code][color=#52b8f5]----------------------------------[/color]"+"[/code]")
+			log_output_rich.newline()
+		elif data_split[0] == "log":
+			log_output_rich.append_bbcode("[code][color=#feff7d]"+data_split[0] + " " + array_join(data_split, 1, " ") + "[/color][/code]")
+			log_output_rich.newline()
+		else:
+			log_output_rich.append_bbcode("[code]"+str(data)+"[/code]")
+			log_output_rich.newline()
+		# ----------------------------------------------------
+	
+		self._request_log_cull()
 
 
 func _request_log_cull():
 	if log_output_rich.get_line_count() > MAX_LOG_LINES:
 		for i in range( MAX_LOG_LINES - VISIBLE_LOG_LINES ):
 			log_output_rich.remove_line(0)
-		self._on_log("log  cleared %s lines"%[ MAX_LOG_LINES - VISIBLE_LOG_LINES])
+		self._on_log("log cleared %s lines"%[ MAX_LOG_LINES - VISIBLE_LOG_LINES])
 
 
 func _on_clear_log_button_button_up():
@@ -184,7 +194,7 @@ func reset_log():
 	_on_log( "log started %s"%[get_pretty_time()] )
 	_on_log( "log processors %s"%[OS.get_processor_count()] )
 	_on_log( "log ------------------------------------------------")
-	
+
 
 func _on_max_processors_spinbox_value_changed(value):
 	_on_log("max processors changed to %s"%[value])
@@ -236,5 +246,4 @@ func bias(t,b):
 
 func remap(value, low1, high1, low2, high2):
 	 return low2 + (value - low1) * (high2 - low2) / (high1 - low1)
-
 

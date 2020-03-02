@@ -23,11 +23,10 @@ func set_data(userdata):
 		self.data[k] = userdata[k]
 
 func begin(userdata={}):
-	emit_signal("begin",self)
+	#emit_signal("begin",self)
 	thread = Thread.new()
 	self.set_data(userdata)
 	thread.start(self, "_thread_function", self.data, thread.PRIORITY_LOW )
-
 
 # do the work
 # The argument is the userdata passed from begin().
@@ -35,6 +34,7 @@ func _thread_function(userdata):
 	time_start = OS.get_unix_time()
 
 	call_deferred("emit_signal", "thread_begin", self)
+	#emit_signal("thread_begin", self)
 
 	# do work
 	var x = 0
@@ -51,24 +51,24 @@ func _thread_function(userdata):
 			x += 0.000001
 			i += 1
 
-	# finish on completion
-	call_deferred("end")
+
 	userdata["depth"] = userdata["depth"] * userdata["work_scale"]
 	userdata["result"] = x
 	if self.killed:
 		userdata["completed_status"] = "killed"
 	else:
 		userdata["completed_status"] = "complete"
+	# finish on completion
+	call_deferred("end")
 	return userdata
 
 func end():
-#	psa = null
 	var result = thread.wait_to_finish() #result = userdata from _thread_function(userdata)
 	var elapsed = OS.get_unix_time() - time_start
-	#emit_signal("end", self, elapsed, result)
-	thread = null
-	call_deferred("emit_signal", "end", self, elapsed, result)
-
+	#call_deferred("emit_signal", "end", self, elapsed, result)
+	emit_signal("end", self, elapsed, result)
+	
+	
 func kill_thread():
 	# in a container of threads
 	# var t = thread_node.new()

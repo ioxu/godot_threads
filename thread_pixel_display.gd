@@ -39,9 +39,12 @@ func _ready():
 	self.texture = image_texture
 
 func set_nth_pixel( n, colour ):
+	#var start_time = OS.get_ticks_usec()
 	image.lock()
 	image.set_pixel( fmod(n, iwidth),  fmod(floor(n/iwidth), iheight), colour )
 	image.unlock()
 
 	image_texture.set_data(image)
 	self.texture = image_texture
+	#print("thread_pixel_display.set_nth_pixel() time: ", OS.get_ticks_usec() - start_time)
+	

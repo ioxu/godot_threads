@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://threads.gd" type="Script" id=1]
 [ext_resource path="res://spinner.gd" type="Script" id=2]
@@ -29,6 +29,8 @@ font_path = "res://Hack-Regular.ttf"
 [sub_resource type="DynamicFont" id=5]
 size = 11
 font_data = SubResource( 4 )
+
+[sub_resource type="StyleBoxEmpty" id=9]
 
 [sub_resource type="DynamicFontData" id=6]
 font_path = "res://NotoSansMono-Medium.ttf"
@@ -67,6 +69,7 @@ text = "fps"
 align = 2
 
 [node name="spinner" type="Node2D" parent="Control"]
+visible = false
 position = Vector2( 996.001, 43 )
 script = ExtResource( 2 )
 
@@ -80,21 +83,10 @@ margin_left = 11.0
 margin_top = 67.0
 margin_right = 73.0
 margin_bottom = 87.0
+hint_tooltip = "Creates a bunch of threads and adds
+them to the queue."
+custom_colors/font_color = Color( 0.294118, 0.803922, 0.168627, 1 )
 text = "do work"
-
-[node name="stop_work_button" type="Button" parent="Control"]
-margin_left = 330.0
-margin_top = 67.0
-margin_right = 404.0
-margin_bottom = 87.0
-text = "stop work"
-
-[node name="clear_log_button" type="Button" parent="Control"]
-margin_left = 411.0
-margin_top = 67.0
-margin_right = 477.0
-margin_bottom = 87.0
-text = "clear log"
 
 [node name="log_output_rich" type="RichTextLabel" parent="Control"]
 margin_left = 5.0
@@ -118,8 +110,44 @@ thing2
 scroll_following = true
 selection_enabled = true
 
+[node name="enable_logging_check" type="CheckButton" parent="Control"]
+margin_left = 261.0
+margin_top = 59.521
+margin_right = 337.0
+margin_bottom = 99.521
+hint_tooltip = "turn logging on and off
+(operations on RichTextLabel can be
+expensive, and can be a cause of
+dropped frames, as seen in the
+delta_graph when work is started or
+completed, and when the log is culled)"
+custom_styles/focus = SubResource( 9 )
+pressed = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="stop_work_button" type="Button" parent="Control"]
+margin_left = 330.0
+margin_top = 69.521
+margin_right = 404.0
+margin_bottom = 89.521
+hint_tooltip = "Stops all threads, and clears the
+pending queue."
+text = "stop work"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="clear_log_button" type="Button" parent="Control"]
+margin_left = 411.0
+margin_top = 69.521
+margin_right = 477.0
+margin_bottom = 89.521
+hint_tooltip = "Clears the RichTextLabel log."
+text = "clear log"
+
 [node name="threads_container" type="Node" parent="Control"]
-editor/display_folded = true
 
 [node name="work_load_scale_label" type="Label" parent="Control/threads_container"]
 margin_left = 12.0
@@ -127,14 +155,23 @@ margin_top = 27.0
 margin_right = 43.0
 margin_bottom = 41.0
 text = "max:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="work_load_scale_spinbox" type="SpinBox" parent="Control/threads_container"]
 margin_left = 160.08
 margin_top = 67.0
 margin_right = 234.08
 margin_bottom = 91.0
+hint_tooltip = "Load Scale is a multiplier on work
+time for each thread job. Higher
+create threads that run longer."
 step = 0.001
 value = 0.15
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="processors_label" type="Label" parent="Control/threads_container"]
 margin_left = 12.0
@@ -156,6 +193,8 @@ margin_top = 40.0
 margin_right = 85.0
 margin_bottom = 64.0
 rect_min_size = Vector2( 15, 0 )
+hint_tooltip = "The maximum number of threads
+allowed to run at once."
 max_value = 12.0
 value = 11.0
 allow_greater = true
@@ -251,6 +290,9 @@ margin_bottom = 147.0
 rect_scale = Vector2( 10, 10 )
 texture = SubResource( 8 )
 script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="delta_graph" type="TextureRect" parent="Control"]
 margin_left = 485.0
@@ -259,6 +301,7 @@ margin_right = 984.0
 margin_bottom = 92.0
 script = ExtResource( 5 )
 [connection signal="button_up" from="Control/do_work_button" to="." method="_on_do_work_button_button_up"]
+[connection signal="pressed" from="Control/enable_logging_check" to="." method="_on_enable_logging_check_pressed"]
 [connection signal="button_up" from="Control/stop_work_button" to="." method="_on_stop_work_button_button_up"]
 [connection signal="button_up" from="Control/clear_log_button" to="." method="_on_clear_log_button_button_up"]
 [connection signal="value_changed" from="Control/threads_container/max_processors_spinbox" to="." method="_on_max_processors_spinbox_value_changed"]
